@@ -1,0 +1,11 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: entrepatas-api
+
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      database: entrepatas
