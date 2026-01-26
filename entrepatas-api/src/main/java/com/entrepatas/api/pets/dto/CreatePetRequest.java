@@ -14,7 +14,7 @@ import jakarta.validation.constraints.NotNull;
 public class CreatePetRequest {
 
     @NotBlank
-    private String organizationId;
+    private String organizationSlug;
 
     @NotBlank
     private String name;
@@ -34,12 +34,12 @@ public class CreatePetRequest {
     private PetPriority priority = PetPriority.NORMAL;
 
     // Getter y Setter
-    public String getOrganizationId() {
-        return organizationId;
+    public String getOrganizationSlug() {
+        return organizationSlug;
     }
 
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
+    public void setOrganizationSlug(String organizationSlug) {
+        this.organizationSlug = organizationSlug;
     }
 
     public String getName() {

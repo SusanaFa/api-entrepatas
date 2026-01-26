@@ -10,14 +10,18 @@ import com.entrepatas.api.pets.enums.PetPriority;
 import com.entrepatas.api.pets.enums.PetStatus;
 import com.entrepatas.api.pets.model.Pet;
 import com.entrepatas.api.pets.repository.PetRepository;
+import com.entrepatas.api.organization.repository.OrganizationRepository;
+import com.entrepatas.api.organization.model.Organization;
 
 @Service
 public class PetService {
 
     private final PetRepository petRepository;
+    private final OrganizationRepository organizationRepository;
 
-    public PetService(PetRepository petRepository) {
+    public PetService(PetRepository petRepository, OrganizationRepository organizationRepository) {
         this.petRepository = petRepository;
+        this.organizationRepository = organizationRepository;
     }
 
     // crear pet mediante dto.
@@ -25,7 +29,12 @@ public class PetService {
         Pet pet = new Pet();
 
         // campos base
-        pet.setOrganizationId(dto.getOrganizationId());
+        Organization org = organizationRepository.findBySlug(dto.getOrganizationSlug())
+                .orElseThrow(() -> new RuntimeException(
+                        "Organization no encontrada para slug: " + dto.getOrganizationSlug()));
+
+        pet.setOrganizationId(org.getId());
+
         pet.setName(dto.getName());
         pet.setSpecies(dto.getSpecies());
         pet.setSex(dto.getSex());
