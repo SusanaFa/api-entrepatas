@@ -11,16 +11,16 @@
 
 ## 📋 Descripción del Proyecto
 
-**Entre Patas y Hogares** es una plataforma web dedicada a facilitar la adopción responsable de mascotas. Esta API REST permite gestionar de manera integral:
+**Entre Patas y Hogares** es el backend de una plataforma dedicada a facilitar la adopción responsable de mascotas. Esta API REST permite gestionar de manera integral:
 
 - 🐶 **Registro y administración de mascotas** (perros y gatos)
-- 📝 **Solicitudes de adopción** con validación de candidatos
+- 📝 **Solicitudes de adopción** con validación de datos del solicitante
 - 🏥 **Historial médico** de las mascotas (vacunaciones, esterilización, tratamientos)
 - 📸 **Galería de imágenes** para cada mascota
 - 🏢 **Gestión de organizaciones** de rescate y refugios
 - 📬 **Solicitudes de ingreso** (nuevo caso, solicitud de membresía, consultas)
 
-La API fue diseñada con enfoque en **escalabilidad**, **seguridad de datos** y **experiencia de usuario**, permitiendo que personas y organizaciones colaboren en el rescate y adopción responsable de mascotas.
+La API está organizada por dominios y capas, con flujos diferenciados para personas interesadas en adoptar y organizaciones responsables de gestionar mascotas y solicitudes.
 
 ---
 
@@ -43,11 +43,12 @@ La API fue diseñada con enfoque en **escalabilidad**, **seguridad de datos** y 
 
 ### Historial Médico
 
-- Registro de eventos médicos: ingreso, chequeos, vacunaciones, tratamientos
-- Estados de salud: esterilización, vacunas, desparasitación
-- Listado de condiciones y discapacidades
-- Consulta pública de antecedentes médicos
-- Nota: la consulta pública expone solo información básica, no datos sensibles.
+- Registro de eventos médicos: ingreso, chequeos, vacunaciones y tratamientos
+- Seguimiento de esterilización, vacunación y desparasitación
+- Registro de condiciones, discapacidades y observaciones
+- Consulta cronológica del historial por mascota
+
+> ⚠️ En esta versión MVP, la consulta del historial médico permanece pública y devuelve el registro completo. Está pendiente separar las respuestas públicas y administrativas mediante DTOs específicos.
 
 ### Imágenes de Mascotas
 
@@ -71,16 +72,16 @@ La API fue diseñada con enfoque en **escalabilidad**, **seguridad de datos** y 
 
 - **Java 17**: Lenguaje de programación
 - **Spring Boot 3.5.9**: Framework web y gestión de dependencias
-- **Spring Data MongoDB**: ORM para MongoDB
+- **Spring Data MongoDB**: Acceso y persistencia de datos
 - **Spring Boot Validation**: Validación de datos (anotaciones)
 - **Spring Boot DevTools**: Reloading automático en desarrollo
 
 ### Base de Datos
 
 - **MongoDB Atlas**: Base de datos NoSQL en la nube
-- Colecciones: `pets`, `adoption_applications`, `medical_records`, `pet_images`, `organizations`, `intake_requests`
+- Colecciones: `pets`, `adoption_applications`, `medical_record`, `pet_images`, `organizations`, `intake_requests`
 
-### Build & Deployment
+### Build 
 
 - **Maven 3.9.12**: Gestor de dependencias y build
 - **Spring Boot Maven Plugin**: Plugin para empaquetado
@@ -91,17 +92,6 @@ La API fue diseñada con enfoque en **escalabilidad**, **seguridad de datos** y 
 - **JUnit 5**: Testing
 - **IntelliJ IDEA** / **VS Code**: IDEs recomendados
 
----
-
-## 📅 Línea de Tiempo del Proyecto
-
-| Fecha             | Hito                                                      |
-| ----------------- | --------------------------------------------------------- |
-| **Enero 2026**    | Inicio del desarrollo de la API REST                      |
-| **Enero 2026**    | Implementación de módulos base (Mascotas, Organizaciones) |
-| **Enero 2026**    | Desarrollo de solicitudes de adopción e ingreso           |
-| **Enero 2026**    | Integración de historial médico                           |
-| **En desarrollo** | Autenticación y autorización basada en roles              |
 
 ---
 
@@ -123,22 +113,20 @@ entrepatas-api/
 │   ├── petimage/                             # Módulo de imágenes
 │   ├── organization/                         # Módulo de organizaciones
 │   ├── intakerequests/                       # Módulo de solicitudes
-│   ├── auth/                                 # (En desarrollo) Autenticación
 │   └── common/
-│       ├── config/                           # Configuraciones globales
-│       ├── exception/                        # Manejo de excepciones
-│       └── response/                         # Formatos de respuesta
+│       └── exception/                        # Manejo global de excepciones
 ├── src/main/resources/
 │   └── application.yaml                      # Configuración de la aplicación
 ├── pom.xml                                   # Dependencias Maven
-└── mvnw/mvnw.cmd                            # Maven wrapper para Windows
+├── mvnw                                      # Maven Wrapper para Linux/macOS
+└── mvnw.cmd                                  # Maven Wrapper para Windows
 ```
 
 ### Patrones de Diseño
 
 - **MVC**: Model-View-Controller (adaptado a REST)
 - **Layered Architecture**: Separación clara entre controlador, servicio y repositorio
-- **DTO Pattern**: Transferencia segura de datos
+- **DTO Pattern**: DTOs para validación de solicitudes de entrada
 - **Repository Pattern**: Abstracción del acceso a datos
 
 ---
@@ -154,7 +142,7 @@ GET     /public/pets/{id}                     # Obtener mascota por ID
 GET     /public/pets/urgent                   # Mascotas urgentes
 POST    /public/pets/{petId}/adoption-applications
 GET     /public/pets/{petId}/images           # Galería de imágenes
-GET     /public/pets/{petId}/medical-records  # Historial médico
+GET     /public/pets/{petId}/medical-records   # Historial médico
 POST    /public/intake-requests               # Enviar solicitud de ingreso
 ```
 
@@ -165,10 +153,10 @@ POST    /public/intake-requests               # Enviar solicitud de ingreso
 ```
 POST    /admin/pets                           # Crear mascota
 POST    /admin/pets/{petId}/images            # Agregar imagen
-POST    /admin/pets/{petId}/medical-records   # Crear registro médico
+POST    /admin/pets/{petId}/medical-records    # Crear registro médico
 GET     /admin/pets/{petId}/adoption-applications   # Ver solicitudes
-GET     /admin/organizations/{orgId}/adoption-applications
-POST    /admin/adoption-applications/{appId}/status # Cambiar estado
+GET     /admin/organizations/{organizationId}/adoption-applications
+POST    /admin/adoption-applications/{applicationId}/status     # Cambiar estado
 POST    /admin/organizations                  # Crear organización
 GET     /admin/organizations                  # Listar organizaciones
 GET     /admin/intake-requests                # Ver solicitudes de ingreso
@@ -285,8 +273,8 @@ La API implementa un manejador global de excepciones (`GlobalExceptionHandler`):
 1. **Clonar el repositorio**
 
 ```bash
-git clone <url-repositorio>
-cd entrepatas-api/entrepatas-api
+git clone https://github.com/SusanaFa/api-entrepatas.git
+cd api-entrepatas/entrepatas-api
 ```
 
 2. **Configurar variables de entorno**
@@ -369,7 +357,7 @@ La aplicación incluye un test básico:
 1. Usuario ve mascotas disponibles (GET /public/pets)
 2. Usuario aplica para una mascota (POST /public/pets/{id}/adoption-applications)
 3. Administrador revisa solicitud (GET /admin/pets/{id}/adoption-applications)
-4. Administrador aprueba/rechaza (POST /admin/adoption-applications/{id}/status)
+4. Administrador aprueba/rechaza (POST /admin/adoption-applications/{applicationId}/status)
 5. Sistema guarda el resultado
 ```
 
@@ -397,7 +385,7 @@ La aplicación incluye un test básico:
 | Variable      | Descripción                     | Ejemplo                                                                    |
 | ------------- | ------------------------------- | -------------------------------------------------------------------------- |
 | `MONGODB_URI` | URI de conexión a MongoDB Atlas | `mongodb+srv://user:pass@cluster.mongodb.net/?retryWrites=true&w=majority` |
-| `SERVER_PORT` | Puerto del servidor (opcional)  | `8080`                                                                     |
+
 
 ---
 
@@ -408,95 +396,6 @@ La aplicación incluye un test básico:
 - **Clases**: PascalCase (`Pet`, `AdoptionApplication`)
 - **Métodos/variables**: camelCase (`findByStatus`, `petId`)
 - **Constantes**: UPPER_SNAKE_CASE
-- **DTOs**: Sufijo `Request` para entrada, `Response` para salida
-
-### Estructura de Paquetes
-
-```
-com.entrepatas.api
-├── [modulo]/
-│   ├── controller/    # @RestController, @PostMapping, @GetMapping
-│   ├── service/       # @Service, lógica de negocio
-│   ├── repository/    # @Repository, interfaces MongoRepository
-│   ├── model/         # @Document, entidades
-│   ├── dto/           # POJOs de transferencia
-│   └── enums/         # Enumeraciones
-├── common/
-│   ├── config/        # Configuraciones globales
-│   ├── exception/     # @RestControllerAdvice, manejo de errores
-│   └── response/      # Clases de respuesta genéricas
-```
-
----
-
-## 🤝 Contribución y Desarrollo
-
-### Agregar un Nuevo Módulo
-
-1. Crear paquete: `com.entrepatas.api.[modulo]`
-2. Crear subdirectorios: `model`, `dto`, `service`, `repository`, `controller`, `enums`
-3. Implementar en orden:
-   - Modelo con anotaciones `@Document` y validaciones
-   - Repository extendiendo `MongoRepository`
-   - Service con lógica de negocio
-   - Controller con endpoints
-
-### Ejemplo Mínimo
-
-```java
-// Model
-@Document(collection = "example")
-public class Example {
-    @Id private String id;
-    @NotBlank private String name;
-}
-
-// Repository
-public interface ExampleRepository extends MongoRepository<Example, String> {
-}
-
-// Service
-@Service
-public class ExampleService {
-    public Example create(Example ex) { return repo.save(ex); }
-}
-
-// Controller
-@RestController
-public class ExampleController {
-    @PostMapping("/admin/examples")
-    public Example create(@Valid @RequestBody Example ex) {
-        return service.create(ex);
-    }
-}
-```
-
----
-
-## 🐛 Troubleshooting
-
-| Problema               | Solución                                                         |
-| ---------------------- | ---------------------------------------------------------------- |
-| `No MongoDB URI found` | Verificar variable de entorno `MONGODB_URI`                      |
-| `Connection timeout`   | Verificar conectividad a MongoDB Atlas y IP whitelist            |
-| `Validation errors`    | Revisar el formato del JSON enviado                              |
-| `Enum not recognized`  | Usar valores exactos en mayúsculas (ej: `PENDING`, no `pending`) |
-| `Port 8080 in use`     | Cambiar puerto en `application.yaml` o matar proceso actual      |
-
----
-
-## 📚 Recursos Adicionales
-
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [MongoDB Atlas Docs](https://docs.mongodb.com/manual/)
-- [Jakarta Validation](https://jakarta.ee/specifications/validation/)
-- [REST API Best Practices](https://restfulapi.net/)
-
----
-
-## 📄 Licencia
-
-Este proyecto está disponible bajo la licencia especificada en el archivo `LICENSE.md` (por definir).
 
 ---
 
@@ -511,17 +410,13 @@ Para preguntas o sugerencias sobre el desarrollo:
 
 ## 🎯 Roadmap Futuro
 
-- [ ] **Autenticación y Autorización**: JWT, roles (Admin, Organization, User)
-- [ ] **Adopción Finalizadas**: Marcar adopciones como completadas, seguimiento
-- [ ] **Búsqueda Avanzada**: Filtros complejos, búsqueda de texto
-- [ ] **Notificaciones**: Email a usuarios cuando hay actualizaciones
-- [ ] **Reportes**: Estadísticas de adopciones, mascotas urgentes
-- [ ] **Integración de Pagos**: Donaciones, cuotas de membresía
-- [ ] **API GraphQL**: Alternativa a REST
-- [ ] **Documentación interactiva**: Swagger/OpenAPI
+- [ ] Implementar autenticación JWT y autorización por roles.
+- [ ] Separar respuestas públicas y administrativas del historial médico.
+- [ ] Incorporar pruebas unitarias y de integración.
+- [ ] Documentar la API con OpenAPI/Swagger.
+- [ ] Desarrollar el frontend web.
 
 ---
 
 **Hecho con ❤️ para rescatar mascotas y construir hogares felices.**
 
-_Última actualización: 26 Enero 2026_
